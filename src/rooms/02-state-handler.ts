@@ -3,10 +3,18 @@ import { Schema, type, MapSchema } from "@colyseus/schema";
 
 export class Player extends Schema {
     @type("number")
-    x = Math.floor(Math.random() * 400);
+    positionX = Math.floor(Math.random() * 50) - 25;
+    @type("number")
+    positionY = 0;
+    @type("number")
+    positionZ = Math.floor(Math.random() * 50) - 25;
 
     @type("number")
-    y = Math.floor(Math.random() * 400);
+    velocityX = 0;
+    @type("number")
+    velocityY = 0;
+    @type("number")
+    velocityZ = 0;
 }
 
 export class State extends Schema {
@@ -23,13 +31,14 @@ export class State extends Schema {
         this.players.delete(sessionId);
     }
 
-    movePlayer (sessionId: string, movement: any) {
-        if (movement.x) {
-            this.players.get(sessionId).x += movement.x * 10;
+    movePlayer (sessionId: string, data: any) {
+        this.players.get(sessionId).positionX += data.positionX;
+        this.players.get(sessionId).positionY += data.positionY;
+        this.players.get(sessionId).positionZ += data.positionZ;
 
-        } else if (movement.y) {
-            this.players.get(sessionId).y += movement.y * 10;
-        }
+        this.players.get(sessionId).velocityX += data.velocityX;
+        this.players.get(sessionId).velocityY += data.velocityY;
+        this.players.get(sessionId).velocityZ += data.velocityZ;
     }
 }
 
@@ -42,7 +51,7 @@ export class StateHandlerRoom extends Room<State> {
         this.setState(new State());
 
         this.onMessage("move", (client, data) => {
-            console.log("StateHandlerRoom received message from", client.sessionId, ":", data);
+            //console.log("StateHandlerRoom received message from", client.sessionId, ":", data);
             this.state.movePlayer(client.sessionId, data);
         });
     }
